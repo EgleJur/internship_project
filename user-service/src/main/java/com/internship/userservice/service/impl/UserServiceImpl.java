@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(String userId) {
+    public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
 
@@ -37,9 +37,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(String userId, User userDetails) {
+    public User updateUser(Long userId, User userDetails) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUsername(userDetails.getUsername());
+        user.setUserName(userDetails.getUserName());
         user.setPasswordHash(userDetails.getPasswordHash());
         user.setEmail(userDetails.getEmail());
         user.setRole(userDetails.getRole());
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
     }

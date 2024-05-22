@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class UserProfilesCreationDTO {
 
-    private User user;
+    private Long userId;
 
     private String firstName;
 

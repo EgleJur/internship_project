@@ -15,7 +15,7 @@ public class UserProfilesDTO {
 
     private Long profileId;
 
-    private User user;
+    private UserDTO user;
 
     private String firstName;
 

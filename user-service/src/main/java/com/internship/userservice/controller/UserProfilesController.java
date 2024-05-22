@@ -1,6 +1,8 @@
 package com.internship.userservice.controller;
 
 import com.internship.userservice.model.UserProfiles;
+import com.internship.userservice.model.dto.UserProfilesCreationDTO;
+import com.internship.userservice.model.dto.UserProfilesDTO;
 import com.internship.userservice.service.UserProfilesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,24 +24,22 @@ public class UserProfilesController {
     private UserProfilesService userProfilesService;
 
     @GetMapping
-    public List<UserProfiles> getAllUserProfiles() {
+    public List<UserProfilesDTO> getAllUserProfiles() {
         return userProfilesService.getAllUserProfiles();
     }
 
     @GetMapping("/{userProfileId}")
-    public ResponseEntity<UserProfiles> getUserProfileById(@PathVariable Long userProfileId) {
-        return userProfilesService.getUserProfileById(userProfileId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public UserProfilesDTO getUserProfileById(@PathVariable Long userProfileId) {
+        return userProfilesService.getUserProfileById(userProfileId);
     }
 
     @PostMapping
-    public UserProfiles createUserProfile(@RequestBody UserProfiles userProfile) {
-        return userProfilesService.createUserProfile(userProfile);
+    public UserProfilesDTO createUserProfile(@RequestBody UserProfilesCreationDTO userProfileDetails) {
+        return userProfilesService.createUserProfile(userProfileDetails);
     }
 
     @PutMapping("/{userProfileId}")
-    public ResponseEntity<UserProfiles> updateUserProfile(@PathVariable Long userProfileId, @RequestBody UserProfiles userProfileDetails) {
+    public ResponseEntity<UserProfilesDTO> updateUserProfile(@PathVariable Long userProfileId, @RequestBody UserProfilesCreationDTO userProfileDetails) {
         return ResponseEntity.ok(userProfilesService.updateUserProfile(userProfileId, userProfileDetails));
     }
 

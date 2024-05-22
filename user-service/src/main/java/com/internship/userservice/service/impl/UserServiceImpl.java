@@ -1,7 +1,10 @@
 package com.internship.userservice.service.impl;
 
 import com.internship.userservice.dao.UserRepository;
+import com.internship.userservice.mapper.UserMapper;
 import com.internship.userservice.model.User;
+import com.internship.userservice.model.dto.UserCreationDTO;
+import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -18,33 +21,42 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    UserMapper userMapper;
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream().map(userMapper::userToUserDTO).collect(Collectors.toList());
+
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
-    }
+    public UserDTO getUserById(Long userId) {
 
-    @Override
-    public User createUser(User user) {
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User updateUser(Long userId, User userDetails) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userMapper.userToUserDTO(user);
+    }
+
+    @Override
+    public UserDTO createUser(UserCreationDTO userDetails) {
+
+        userDetails.setCreatedAt(LocalDateTime.now());
+        userDetails.setUpdatedAt(null);
+        return userMapper.userToUserDTO(userRepository.save(userMapper.userCreationDTOToUser(userDetails)));
+    }
+
+    @Override
+    public UserDTO updateUser(Long userId, UserCreationDTO userDetails) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
         user.setUserName(userDetails.getUserName());
         user.setPasswordHash(userDetails.getPasswordHash());
         user.setEmail(userDetails.getEmail());
         user.setRole(userDetails.getRole());
         user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        return userMapper.userToUserDTO(userRepository.save(user));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.internship.userservice.controller;
 
-import com.internship.userservice.model.User;
+import com.internship.userservice.model.dto.UserCreationDTO;
+import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +24,22 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public UserDTO getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public UserDTO createUser(@RequestBody UserCreationDTO userDetails) {
+        return userService.createUser(userDetails);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User userDetails) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @RequestBody UserCreationDTO userDetails) {
         return ResponseEntity.ok(userService.updateUser(userId, userDetails));
     }
 

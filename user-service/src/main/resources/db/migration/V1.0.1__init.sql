@@ -25,3 +25,4 @@ CREATE TABLE user_profiles (
     UNIQUE KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+

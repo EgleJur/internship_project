@@ -7,11 +7,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface UserProfilesMapper {
-    UserProfiles userProfilesDTOToUserProfiles(UserProfilesDTO userProfilesDTO);
 
     UserProfiles userProfilesCreationDTOToUserProfiles(UserProfilesCreationDTO userProfilesCreationDTO);
 
     UserProfilesDTO userProfilesToUserProfilesDTO(UserProfiles userProfiles);
 
-    UserProfilesCreationDTO userProfilesToUserProfilesCreationDTO(UserProfiles userProfiles);
 }

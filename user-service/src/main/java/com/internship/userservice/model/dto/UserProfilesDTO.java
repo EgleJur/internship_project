@@ -1,7 +1,5 @@
 package com.internship.userservice.model.dto;
 
-
-import com.internship.userservice.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

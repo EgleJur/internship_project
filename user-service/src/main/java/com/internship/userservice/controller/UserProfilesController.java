@@ -1,6 +1,5 @@
 package com.internship.userservice.controller;
 
-import com.internship.userservice.model.UserProfiles;
 import com.internship.userservice.model.dto.UserProfilesCreationDTO;
 import com.internship.userservice.model.dto.UserProfilesDTO;
 import com.internship.userservice.service.UserProfilesService;

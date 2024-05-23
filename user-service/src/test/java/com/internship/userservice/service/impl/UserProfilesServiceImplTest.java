@@ -221,4 +221,15 @@ class UserProfilesServiceImplTest {
         verify(userProfilesRepositoryMock, times(1)).findById(nonExistentId);
         verify(userProfilesRepositoryMock, never()).delete(any(UserProfiles.class));
     }
+
+    @Test
+    void deleteUserProfileByUser() {
+        when(userProfilesRepositoryMock.findByUser(user)).thenReturn(Optional.of(userProfiles));
+
+        userProfilesServiceTarget.deleteUserProfileByUser(user);
+
+        verify(userProfilesRepositoryMock, times(1)).findByUser(user);
+        verify(userProfilesRepositoryMock, times(1)).delete(any(UserProfiles.class));
+
+    }
 }

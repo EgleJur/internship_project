@@ -71,4 +71,10 @@ public class UserProfilesServiceImpl implements UserProfilesService {
         UserProfiles userProfile = userProfilesRepository.findById(userProfileId).orElseThrow(() -> new RuntimeException("User Profile not found"));
         userProfilesRepository.delete(userProfile);
     }
+
+    @Override
+    public void deleteUserProfileByUser(User user) {
+        UserProfiles userProfile = userProfilesRepository.findByUser(user).orElseThrow(() -> new RuntimeException("User Profile not found"));
+        userProfilesRepository.delete(userProfile);
+    }
 }

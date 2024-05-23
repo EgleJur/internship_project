@@ -38,6 +38,9 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userServiceTarget;
 
+    @Mock
+    private UserProfilesServiceImpl userProfilesServiceTarget;
+
     private User user;
     private UserDTO userDTO;
     private UserCreationDTO userCreationDTO;
@@ -169,12 +172,14 @@ class UserServiceImplTest {
 
     @Test
     void deleteUser() {
+
         when(userRepositoryMock.findById(1L)).thenReturn(Optional.of(user));
 
         userServiceTarget.deleteUser(1L);
 
         verify(userRepositoryMock, times(1)).findById(1L);
-        verify(userRepositoryMock, times(1)).delete(any(User.class));
+        verify(userProfilesServiceTarget, times(1)).deleteUserProfileByUser(user);
+        verify(userRepositoryMock, times(1)).delete(user);
     }
 
     @Test

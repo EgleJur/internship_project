@@ -1,7 +1,6 @@
 package com.internship.userservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.internship.userservice.mapper.UserMapper;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
@@ -43,9 +42,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userServiceMock;
-
-    @MockBean
-    private UserMapper userMapperMock;
 
     @InjectMocks
     private UserController userControllerTarget;

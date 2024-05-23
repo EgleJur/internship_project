@@ -1,18 +1,18 @@
 package com.internship.userservice.service;
 
-import com.internship.userservice.model.User;
+import com.internship.userservice.model.dto.UserCreationDTO;
+import com.internship.userservice.model.dto.UserDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<UserDTO> getAllUsers();
 
-    Optional<User> getUserById(String userId);
+    UserDTO getUserById(Long userId);
 
-    User createUser(User user);
+    UserDTO createUser(UserCreationDTO userDetails);
 
-    User updateUser(String userId, User userDetails);
+    UserDTO updateUser(Long userId, UserCreationDTO userDetails);
 
-    void deleteUser(String userId);
+    void deleteUser(Long userId);
 }

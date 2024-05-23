@@ -7,13 +7,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "users")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +27,7 @@ public class User {
     private Long userId;
 
     @Column(name = "username")
-    private String username;
+    private String userName;
 
     @Column(name = "password_hash")
     private String passwordHash;

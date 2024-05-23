@@ -1,4 +1,4 @@
---use userdb;
+use userdb;
 
 INSERT INTO users (username, password_hash, email, role, created_at, updated_at) VALUES
 ('john_doe', 'W3NHY0YPf2lbVW', 'john.doe@example.com', 'admin', '2024-05-01 10:00:00', '2024-05-10 15:30:00'),

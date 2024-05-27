@@ -56,7 +56,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUser(Long userId, UserCreationDTO userDetails) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setUserName(userDetails.getUserName());
         user.setPasswordHash(userDetails.getPasswordHash());

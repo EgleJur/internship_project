@@ -187,4 +187,20 @@ class DeviceServiceImplTest {
         verify(deviceRepositoryMock, times(1)).findById(1L);
         verify(deviceRepositoryMock, times(1)).delete(device);
     }
+
+    @Test
+    void getDevicesByUserId() {
+        when(deviceRepositoryMock.findByUserId(2L)).thenReturn(Arrays.asList(device));
+        when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
+
+
+        List<DeviceDTO> result = deviceServiceTarget.getDevicesByUserId(2L);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Device A", result.get(0).getDeviceName());
+        verify(deviceRepositoryMock, times(1)).findByUserId(2L);
+        verify(deviceMapperMock, times(1)).deviceToDeviceDTO(any(Device.class));
+
+    }
 }

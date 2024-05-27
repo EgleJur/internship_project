@@ -47,4 +47,10 @@ public class DeviceController {
         deviceService.deleteDevice(deviceId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public List<DeviceDTO> getDevicesByUserId(@PathVariable Long userId) {
+        return deviceService.getDevicesByUserId(userId);
+    }
+
 }

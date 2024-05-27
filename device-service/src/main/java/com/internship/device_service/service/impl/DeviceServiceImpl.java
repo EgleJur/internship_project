@@ -58,4 +58,11 @@ public class DeviceServiceImpl implements DeviceService {
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         deviceRepository.delete(device);
     }
+
+    @Override
+    public List<DeviceDTO> getDevicesByUserId(Long userId) {
+        List<Device> devices = deviceRepository.findByUserId(userId);
+        return devices.stream().map(deviceMapper::deviceToDeviceDTO)
+                .collect(Collectors.toList());
+    }
 }

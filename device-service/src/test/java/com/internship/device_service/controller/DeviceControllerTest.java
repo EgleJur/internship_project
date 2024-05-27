@@ -193,4 +193,33 @@ class DeviceControllerTest {
 
         verify(deviceServiceMock, times(1)).deleteDevice(id);
     }
+
+    @Test
+    void getDevicesByUserId() throws Exception {
+
+        List<DeviceDTO> deviceList = new ArrayList<>();
+        DeviceDTO deviceDTO = setUpDeviceDTO();
+
+        deviceList.add(deviceDTO);
+
+        when(deviceServiceMock.getDevicesByUserId(2L)).thenReturn(deviceList);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(URL + "/user/{userId}", 2L))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].deviceId").value(1L))
+                .andExpect(jsonPath("$[0].userId").value(2L))
+                .andExpect(jsonPath("$[0].deviceName").value("Device A"))
+                .andExpect(jsonPath("$[0].deviceType").value("Type B"))
+                .andExpect(jsonPath("$[0].model").value("Model X"))
+                .andExpect(jsonPath("$[0].location").value("Location Y"))
+                .andExpect(jsonPath("$[0].status").value("Active"))
+                .andExpect(jsonPath("$[0].createdAt").value("2024-01-01T12:00:00"))
+                .andExpect(jsonPath("$[0].updatedAt").value("2024-01-01T12:00:00"))
+                .andExpect(status().isOk());
+
+        verify(deviceServiceMock, times(1)).getDevicesByUserId(2L);
+
+    }
 }

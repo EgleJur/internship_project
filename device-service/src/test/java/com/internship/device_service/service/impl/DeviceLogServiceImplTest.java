@@ -3,10 +3,8 @@ package com.internship.device_service.service.impl;
 import com.internship.device_service.dao.DeviceLogRepository;
 import com.internship.device_service.dao.DeviceRepository;
 import com.internship.device_service.mapper.DeviceLogMapper;
-import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
 import com.internship.device_service.model.DeviceLog;
-import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.model.dto.DeviceLogCreationDTO;
 import com.internship.device_service.model.dto.DeviceLogDTO;
@@ -51,7 +49,7 @@ class DeviceLogServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
+        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
 
         device = Device.builder()
                 .deviceId(1L)

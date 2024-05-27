@@ -45,9 +45,9 @@ class DeviceControllerTest {
     @InjectMocks
     private DeviceController deviceControllerTarget;
 
-    private DeviceDTO setUpDeviceDTO() {
+    private LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
 
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
+    private DeviceDTO setUpDeviceDTO() {
 
         return DeviceDTO.builder()
                 .deviceId(1L)
@@ -63,8 +63,6 @@ class DeviceControllerTest {
     }
 
     private DeviceCreationDTO setUpDeviceCreationDTO() {
-
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
 
         return DeviceCreationDTO.builder()
                 .userId(2L)

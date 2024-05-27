@@ -43,7 +43,7 @@ class DeviceServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
+        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
 
         device = Device.builder()
                 .deviceId(1L)

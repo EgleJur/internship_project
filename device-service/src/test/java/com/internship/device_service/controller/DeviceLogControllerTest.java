@@ -1,13 +1,10 @@
 package com.internship.device_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.internship.device_service.model.DeviceLog;
-import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.model.dto.DeviceLogCreationDTO;
 import com.internship.device_service.model.dto.DeviceLogDTO;
 import com.internship.device_service.service.DeviceLogService;
-import com.internship.device_service.service.DeviceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -46,10 +43,10 @@ class DeviceLogControllerTest {
 
     @InjectMocks
     private DeviceLogController deviceLogControllerTarget;
+    private LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
+    ;
 
     private DeviceDTO setUpDeviceDTO() {
-
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
 
         return DeviceDTO.builder()
                 .deviceId(1L)
@@ -66,8 +63,6 @@ class DeviceLogControllerTest {
 
     private DeviceLogDTO setUpDeviceLogDTO() {
 
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
-
         return DeviceLogDTO.builder()
                 .logId(1L)
                 .device(setUpDeviceDTO())
@@ -77,8 +72,6 @@ class DeviceLogControllerTest {
     }
 
     private DeviceLogCreationDTO setUpDeviceLogCreationDTO() {
-
-        LocalDateTime date = LocalDateTime.of(2024, 1, 1, 12, 00, 00);
 
         return DeviceLogCreationDTO.builder()
                 .deviceId(1L)

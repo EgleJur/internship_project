@@ -1,6 +1,5 @@
 package com.internship.device_service.controller;
 
-import com.internship.device_service.model.Device;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.service.DeviceService;

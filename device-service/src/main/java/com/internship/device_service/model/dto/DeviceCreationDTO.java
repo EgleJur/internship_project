@@ -1,7 +1,5 @@
 package com.internship.device_service.model.dto;
 
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

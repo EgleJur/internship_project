@@ -1,5 +1,6 @@
 package com.internship.userservice.service;
 
+import com.internship.userservice.model.Device;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
 
@@ -15,4 +16,6 @@ public interface UserService {
     UserDTO updateUser(Long userId, UserCreationDTO userDetails);
 
     void deleteUser(Long userId);
+
+    List<Device> getUserDevices(Long userId);
 }

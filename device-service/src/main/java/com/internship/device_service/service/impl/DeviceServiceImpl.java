@@ -1,8 +1,10 @@
 package com.internship.device_service.service.impl;
 
 import com.internship.device_service.dao.DeviceRepository;
+import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
+import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.service.DeviceService;
@@ -19,6 +21,8 @@ public class DeviceServiceImpl implements DeviceService {
     private DeviceRepository deviceRepository;
     @Autowired
     DeviceMapper deviceMapper;
+    @Autowired
+    UserClient userClient;
 
     public List<DeviceDTO> getAllDevices() {
         List<Device> devices = deviceRepository.findAll();
@@ -33,6 +37,10 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public DeviceDTO createDevice(DeviceCreationDTO deviceDetails) {
+        User user = userClient.getUserById(deviceDetails.getUserId());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         deviceDetails.setCreatedAt(LocalDateTime.now());
         return deviceMapper.deviceToDeviceDTO(
                 deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails)));
@@ -41,7 +49,10 @@ public class DeviceServiceImpl implements DeviceService {
     public DeviceDTO updateDevice(Long deviceId, DeviceCreationDTO deviceDetails) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
-
+        User user = userClient.getUserById(deviceDetails.getUserId());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         device.setUserId(deviceDetails.getUserId());
         device.setDeviceName(deviceDetails.getDeviceName());
         device.setDeviceType(deviceDetails.getDeviceType());

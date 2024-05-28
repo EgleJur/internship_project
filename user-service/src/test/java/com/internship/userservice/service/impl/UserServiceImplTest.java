@@ -1,7 +1,9 @@
 package com.internship.userservice.service.impl;
 
 import com.internship.userservice.dao.UserRepository;
+import com.internship.userservice.feign.UserInterface;
 import com.internship.userservice.mapper.UserMapper;
+import com.internship.userservice.model.Device;
 import com.internship.userservice.model.User;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
@@ -34,6 +36,8 @@ class UserServiceImplTest {
 
     @Mock
     private UserMapper userMapperMock;
+    @Mock
+    private UserInterface userInterfaceMock;
 
     @InjectMocks
     private UserServiceImpl userServiceTarget;
@@ -44,6 +48,7 @@ class UserServiceImplTest {
     private User user;
     private UserDTO userDTO;
     private UserCreationDTO userCreationDTO;
+    private Device device;
 
     @BeforeEach
     void setUp() {
@@ -75,6 +80,13 @@ class UserServiceImplTest {
                 .role("admin")
                 .createdAt(LocalDateTime.of(2024, 1, 1, 12, 00, 00))
                 .updatedAt(LocalDateTime.of(2024, 2, 1, 12, 00, 00))
+                .build();
+
+        device = Device.builder()
+                .deviceId(1L)
+                .deviceName("Dev1")
+                .deviceType("Type A")
+                .status("Active")
                 .build();
 
     }
@@ -192,5 +204,20 @@ class UserServiceImplTest {
 
         verify(userRepositoryMock, times(1)).findById(nonExistentId);
         verify(userRepositoryMock, never()).delete(any(User.class));
+    }
+
+    @Test
+    void getUserDevices() {
+        Long userId = 1L;
+        when(userInterfaceMock.getDevicesByUserId(userId)).thenReturn(Arrays.asList(device));
+
+        List<Device> result = userServiceTarget.getUserDevices(userId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Dev1", result.get(0).getDeviceName());
+
+        verify(userInterfaceMock, times(1)).getDevicesByUserId(userId);
+
     }
 }

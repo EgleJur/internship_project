@@ -111,7 +111,7 @@ class UserProfilesControllerTest {
                 .thenReturn(userProfilesDTO);
 
         MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
-                        .get(URL + "/{id}", 1L)
+                        .get(URL + "/{userProfileId}", 1L)
                         .param("profileId", "1")
                         .param("user.userName", "Jim")
                         .param("firstName", "Jim")
@@ -159,7 +159,7 @@ class UserProfilesControllerTest {
         when(userProfilesServiceMock.updateUserProfile(1L, userProfilesCreationDTO)).thenReturn(userProfilesDTO);
 
         MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
-                        .put(URL + "/{id}", 1L)
+                        .put(URL + "/{userProfileId}", 1L)
                         .param("profileId", "1")
                         .param("user.userName", "Jim")
                         .param("firstName", "Jim")
@@ -180,7 +180,7 @@ class UserProfilesControllerTest {
     void deleteUserProfile() throws Exception {
         Long id = 1L;
 
-        mockMvc.perform(delete(URL + "/{id}", id))
+        mockMvc.perform(delete(URL + "/{userProfileId}", id))
                 .andExpect(status().isNoContent());
 
         verify(userProfilesServiceMock, times(1)).deleteUserProfile(id);

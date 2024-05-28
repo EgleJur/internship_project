@@ -4,6 +4,7 @@ import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +34,33 @@ public class DeviceController {
     }
 
     @PostMapping
-    public DeviceDTO createDevice(@RequestBody DeviceCreationDTO deviceDetails) {
-        return deviceService.createDevice(deviceDetails);
+    public ResponseEntity<?> createDevice(@RequestBody DeviceCreationDTO deviceDetails) {
+        try {
+            DeviceDTO deviceDTO = deviceService.createDevice(deviceDetails);
+            return ResponseEntity.ok(deviceDTO);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("User not found");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal Server Error");
+        }
     }
 
     @PutMapping("/{deviceId}")
-    public ResponseEntity<DeviceDTO> updateDevice(@PathVariable Long deviceId, @RequestBody DeviceCreationDTO deviceDetails) {
-        return ResponseEntity.ok(deviceService.updateDevice(deviceId, deviceDetails));
+    public ResponseEntity<?> updateDevice(@PathVariable Long deviceId, @RequestBody DeviceCreationDTO deviceDetails) {
+        try {
+            DeviceDTO deviceDTO = deviceService.updateDevice(deviceId, deviceDetails);
+            return ResponseEntity.ok(deviceDTO);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("User not found");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal Server Error");
+        }
     }
 
     @DeleteMapping("/{deviceId}")
@@ -49,8 +70,9 @@ public class DeviceController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<DeviceDTO> getDevicesByUserId(@PathVariable Long userId) {
-        return deviceService.getDevicesByUserId(userId);
+    public ResponseEntity<List<DeviceDTO>> getDevicesByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(deviceService.getDevicesByUserId(userId));
     }
+
 
 }

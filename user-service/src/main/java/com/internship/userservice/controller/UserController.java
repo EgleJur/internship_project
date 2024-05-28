@@ -1,5 +1,6 @@
 package com.internship.userservice.controller;
 
+import com.internship.userservice.model.Device;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
@@ -49,4 +50,12 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{userId}/devices")
+    public ResponseEntity<List<Device>> getUserDevices(@PathVariable Long userId) {
+        List<Device> devices = userService.getUserDevices(userId);
+        if (devices.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(devices);
+    }
 }

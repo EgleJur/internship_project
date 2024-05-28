@@ -2,7 +2,9 @@ package com.internship.userservice.service.impl;
 
 import com.internship.userservice.dao.UserProfilesRepository;
 import com.internship.userservice.dao.UserRepository;
+import com.internship.userservice.feign.UserInterface;
 import com.internship.userservice.mapper.UserMapper;
+import com.internship.userservice.model.Device;
 import com.internship.userservice.model.User;
 import com.internship.userservice.model.UserProfiles;
 import com.internship.userservice.model.dto.UserCreationDTO;
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private UserProfilesService userProfilesService;
+    @Autowired
+    UserInterface userInterface;
 
     @Autowired
     UserMapper userMapper;
@@ -72,5 +76,9 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         userProfilesService.deleteUserProfileByUser(user);
         userRepository.delete(user);
+    }
+
+    public List<Device> getUserDevices(Long userId) {
+        return userInterface.getDevicesByUserId(userId);
     }
 }

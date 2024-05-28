@@ -1,15 +1,12 @@
 package com.internship.userservice.service.impl;
 
-import com.internship.userservice.dao.UserProfilesRepository;
 import com.internship.userservice.dao.UserRepository;
 import com.internship.userservice.feign.UserInterface;
 import com.internship.userservice.mapper.UserMapper;
 import com.internship.userservice.model.Device;
 import com.internship.userservice.model.User;
-import com.internship.userservice.model.UserProfiles;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
-import com.internship.userservice.model.dto.UserProfilesDTO;
 import com.internship.userservice.service.UserProfilesService;
 import com.internship.userservice.service.UserService;
 import lombok.extern.log4j.Log4j2;

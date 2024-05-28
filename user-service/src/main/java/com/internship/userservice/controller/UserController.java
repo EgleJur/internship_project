@@ -5,6 +5,7 @@ import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +31,14 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDTO getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId);
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+        try {
+            UserDTO userDTO = userService.getUserById(userId);
+            return ResponseEntity.ok(userDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
     }
 
     @PostMapping
@@ -40,14 +47,28 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @RequestBody UserCreationDTO userDetails) {
-        return ResponseEntity.ok(userService.updateUser(userId, userDetails));
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserCreationDTO userDetails) {
+
+        try {
+            UserDTO userDTO = userService.updateUser(userId, userDetails);
+            return ResponseEntity.ok(userDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
+
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
     }
 
     @GetMapping("/{userId}/devices")

@@ -232,12 +232,6 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserDevices() {
-
-
-    }
-
-    @Test
     void getUserDevices_UserHasDevices() throws Exception {
 
         List<Device> deviceList = new ArrayList<>();

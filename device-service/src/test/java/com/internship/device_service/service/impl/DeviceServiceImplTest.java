@@ -1,8 +1,10 @@
 package com.internship.device_service.service.impl;
 
 import com.internship.device_service.dao.DeviceRepository;
+import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
+import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,8 @@ class DeviceServiceImplTest {
 
     @Mock
     private DeviceMapper deviceMapperMock;
+    @Mock
+    UserClient userClient;
 
     @InjectMocks
     private DeviceServiceImpl deviceServiceTarget;
@@ -39,6 +43,7 @@ class DeviceServiceImplTest {
     private Device device;
     private DeviceDTO deviceDTO;
     private DeviceCreationDTO deviceCreationDTO;
+    private User user;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +83,10 @@ class DeviceServiceImplTest {
                 .status("Active")
                 .createdAt(date)
                 .updatedAt(date)
+                .build();
+        user = User.builder()
+                .userId(2L)
+                .username("User A")
                 .build();
 
     }
@@ -137,6 +146,7 @@ class DeviceServiceImplTest {
     @Test
     void createDevice() {
 
+        when(userClient.getUserById(2L)).thenReturn(user);
         when(deviceMapperMock.deviceCreationDTOToDevice(any(DeviceCreationDTO.class))).thenReturn(device);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
@@ -152,8 +162,28 @@ class DeviceServiceImplTest {
     }
 
     @Test
+    void createDevice_UserNotFound() {
+        Long nonExistentId = 999L;
+        when(userClient.getUserById(nonExistentId)).thenReturn(null);
+        deviceCreationDTO.setUserId(nonExistentId);
+        assertThrows(RuntimeException.class, () -> deviceServiceTarget.createDevice(deviceCreationDTO));
+
+        verify(userClient, times(1)).getUserById(nonExistentId);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            deviceServiceTarget.createDevice(deviceCreationDTO);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+
+
+    }
+
+    @Test
     void updateDevice() {
+
         when(deviceRepositoryMock.findById(1L)).thenReturn(Optional.of(device));
+        when(userClient.getUserById(2L)).thenReturn(user);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
 
@@ -172,9 +202,28 @@ class DeviceServiceImplTest {
         Long nonExistentId = 999L;
         when(deviceRepositoryMock.findById(nonExistentId)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> deviceServiceTarget.updateDevice(nonExistentId, new DeviceCreationDTO()));
+        assertThrows(RuntimeException.class, () -> deviceServiceTarget.updateDevice(nonExistentId, deviceCreationDTO));
 
         verify(deviceRepositoryMock, times(1)).findById(nonExistentId);
+
+    }
+
+    @Test
+    void updateDevice_UserNotFound() {
+        Long nonExistentId = 999L;
+        when(deviceRepositoryMock.findById(1L)).thenReturn(Optional.of(device));
+        when(userClient.getUserById(nonExistentId)).thenReturn(null);
+        deviceCreationDTO.setUserId(nonExistentId);
+        assertThrows(RuntimeException.class, () -> deviceServiceTarget.updateDevice(1L, deviceCreationDTO));
+
+        verify(userClient, times(1)).getUserById(nonExistentId);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            deviceServiceTarget.updateDevice(1L, deviceCreationDTO);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+
 
     }
 

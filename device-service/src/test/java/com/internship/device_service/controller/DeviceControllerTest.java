@@ -156,6 +156,18 @@ class DeviceControllerTest {
         verify(deviceServiceMock, times(1)).createDevice(deviceCreationDTO);
     }
 
+    @Test
+    void createDevice_UserNotFound() throws Exception {
+        when(deviceServiceMock.createDevice(setUpDeviceCreationDTO()))
+                .thenThrow(new RuntimeException("User not found"));
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(setUpDeviceCreationDTO())))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found"));
+    }
+
 
     @Test
     void updateDevice() throws Exception {
@@ -182,6 +194,18 @@ class DeviceControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
         Assertions.assertEquals(objectMapper.writeValueAsString(deviceDTO), responseBody);
+    }
+
+    @Test
+    void updateDevice_UserNotFound() throws Exception {
+        when(deviceServiceMock.updateDevice(1L, setUpDeviceCreationDTO()))
+                .thenThrow(new RuntimeException("User not found"));
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL + "/{deviceId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(setUpDeviceCreationDTO())))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found"));
     }
 
     @Test

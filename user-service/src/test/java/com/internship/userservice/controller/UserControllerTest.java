@@ -1,6 +1,7 @@
 package com.internship.userservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.internship.userservice.model.Device;
 import com.internship.userservice.model.dto.UserCreationDTO;
 import com.internship.userservice.model.dto.UserDTO;
 import com.internship.userservice.service.UserService;
@@ -18,9 +19,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,6 +71,15 @@ class UserControllerTest {
                 .build();
     }
 
+    private Device setUpDevice() {
+        return Device.builder()
+                .deviceId(1L)
+                .deviceName("Dev1")
+                .deviceType("Type A")
+                .status("Active")
+                .build();
+    }
+
     @Test
     void getAllUsers() throws Exception {
         List<UserDTO> userList = new ArrayList<>();
@@ -100,7 +112,7 @@ class UserControllerTest {
                 .thenReturn(userDTO);
 
         MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
-                        .get(URL + "/{id}", 1L)
+                        .get(URL + "/{userId}", 1L)
                         .param("userId", "1")
                         .param("userName", "Jim")
                         .param("email", "jim@jim.com")
@@ -118,10 +130,10 @@ class UserControllerTest {
 
     @Test
     public void getUserById_whenInvalidRequest() throws Exception {
-        when(userServiceMock.getUserById(999L)).thenReturn(null);
+        when(userServiceMock.getUserById(999L)).thenThrow(new RuntimeException("User not found"));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/{id}", 999L)
+                        .get(URL + "/{userId}", 999L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
@@ -153,13 +165,11 @@ class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
+
         UserCreationDTO userCreationDTO = setUpUserCreationDTO();
-        UserDTO userDTO = setUpUserDTO();
 
-        when(userServiceMock.updateUser(1L, userCreationDTO)).thenReturn(userDTO);
-
-        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
-                        .put(URL + "/{id}", 1L)
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL + "/{userId}", 1L)
                         .param("userId", "1")
                         .param("userName", "Jim")
                         .param("email", "jim@jim.com")
@@ -168,20 +178,91 @@ class UserControllerTest {
                         .param("updatedAt", "2024-02-01T12:00:00")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userCreationDTO)))
-                .andExpect(status().isOk())
+                .andExpect(status().isOk());
+
+        verify(userServiceMock, times(1))
+                .updateUser(1L, userCreationDTO);
+    }
+
+    @Test
+    void updateUser_UserNotFound() throws Exception {
+
+        UserCreationDTO userCreationDTO = setUpUserCreationDTO();
+
+        when(userServiceMock.updateUser(1L, userCreationDTO))
+                .thenThrow(new RuntimeException("User not found"));
+
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL + "/{userId}", 1L)
+                        .param("userId", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userCreationDTO)))
+
+                .andExpect(status().isNotFound())
                 .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
-        Assertions.assertEquals(objectMapper.writeValueAsString(userDTO), responseBody);
     }
 
     @Test
     void deleteUser() throws Exception {
         Long id = 1L;
 
-        mockMvc.perform(delete(URL + "/{id}", id))
+        mockMvc.perform(delete(URL + "/{userId}", id))
                 .andExpect(status().isNoContent());
 
         verify(userServiceMock, times(1)).deleteUser(id);
+
+        when(userServiceMock.getUserById(999L)).thenThrow(new RuntimeException("User not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(URL + "/{userId}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteUser_UserNotFound() throws Exception {
+
+        doThrow(new RuntimeException("User not found")).when(userServiceMock).deleteUser(999L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete(URL + "/{userId}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getUserDevices() {
+
+
+    }
+
+    @Test
+    void getUserDevices_UserHasDevices() throws Exception {
+
+        List<Device> deviceList = new ArrayList<>();
+        deviceList.add(setUpDevice());
+
+        when(userServiceMock.getUserDevices(1L)).thenReturn(deviceList);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(URL + "/{userId}/devices", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(deviceList.size()))
+                .andReturn();
+
+    }
+
+    @Test
+    void getUserDevices_UserHasNoDevices() throws Exception {
+
+        when(userServiceMock.getUserDevices(1L)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(URL + "/{userId}/devices", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }

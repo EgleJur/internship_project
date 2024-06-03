@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  device-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.device-service
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://devicedb:3306/devicedb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - devicedb
+      - service-registry
+    networks:
+      - app-network
+
+  devicedb:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: devicedb
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.user-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://userdb:3306/userdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - userdb
+      - service-registry
+    networks:
+      - app-network
+
+  userdb:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: userdb
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+  
+  service-registry:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: service-registry
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

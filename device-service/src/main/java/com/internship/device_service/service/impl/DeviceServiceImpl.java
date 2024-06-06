@@ -4,10 +4,12 @@ import com.internship.device_service.dao.DeviceRepository;
 import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
+import com.internship.device_service.model.EventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
 import com.internship.device_service.service.DeviceService;
+import com.internship.device_service.service.KafkaEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +22,23 @@ public class DeviceServiceImpl implements DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
     @Autowired
+    private KafkaEventPublisher kafkaEventPublisher;
+    @Autowired
     DeviceMapper deviceMapper;
     @Autowired
     UserClient userClient;
-
-    public List<DeviceDTO> getAllDevices() {
-        List<Device> devices = deviceRepository.findAll();
-        return devices.stream().map(deviceMapper::deviceToDeviceDTO)
-                .collect(Collectors.toList());
-    }
 
     public DeviceDTO getDeviceById(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         return deviceMapper.deviceToDeviceDTO(device);
+    }
+
+
+    public List<DeviceDTO> getAllDevices() {
+        List<Device> devices = deviceRepository.findAll();
+        return devices.stream().map(deviceMapper::deviceToDeviceDTO)
+                .collect(Collectors.toList());
     }
 
     public DeviceDTO createDevice(DeviceCreationDTO deviceDetails) {
@@ -42,8 +47,10 @@ public class DeviceServiceImpl implements DeviceService {
             throw new RuntimeException("User not found");
         }
         deviceDetails.setCreatedAt(LocalDateTime.now());
-        return deviceMapper.deviceToDeviceDTO(
-                deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails)));
+
+        Device savedDevice = deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails));
+        kafkaEventPublisher.sendDeviceEvent(EventType.DEVICE_ADDED, savedDevice);
+        return deviceMapper.deviceToDeviceDTO(savedDevice);
     }
 
     public DeviceDTO updateDevice(Long deviceId, DeviceCreationDTO deviceDetails) {
@@ -61,13 +68,16 @@ public class DeviceServiceImpl implements DeviceService {
         device.setStatus(deviceDetails.getStatus());
         device.setUpdatedAt(LocalDateTime.now());
 
-        return deviceMapper.deviceToDeviceDTO(deviceRepository.save(device));
+        Device updatedDevice = deviceRepository.save(device);
+        kafkaEventPublisher.sendDeviceEvent(EventType.DEVICE_UPDATED, updatedDevice);
+        return deviceMapper.deviceToDeviceDTO(updatedDevice);
     }
 
     public void deleteDevice(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         deviceRepository.delete(device);
+        kafkaEventPublisher.sendDeviceEvent(EventType.DEVICE_DELETED, device);
     }
 
     @Override

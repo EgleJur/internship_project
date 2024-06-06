@@ -4,9 +4,11 @@ import com.internship.device_service.dao.DeviceRepository;
 import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
+import com.internship.device_service.model.EventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
+import com.internship.device_service.service.KafkaEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +39,8 @@ class DeviceServiceImplTest {
     private DeviceMapper deviceMapperMock;
     @Mock
     UserClient userClient;
+    @Mock
+    KafkaEventPublisher kafkaEventPublisher;
 
     @InjectMocks
     private DeviceServiceImpl deviceServiceTarget;
@@ -150,7 +155,7 @@ class DeviceServiceImplTest {
         when(deviceMapperMock.deviceCreationDTOToDevice(any(DeviceCreationDTO.class))).thenReturn(device);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
-
+        doNothing().when(kafkaEventPublisher).sendDeviceEvent(EventType.DEVICE_ADDED, device);
         DeviceDTO result = deviceServiceTarget.createDevice(deviceCreationDTO);
 
         assertNotNull(result);
@@ -186,6 +191,7 @@ class DeviceServiceImplTest {
         when(userClient.getUserById(2L)).thenReturn(user);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
+        doNothing().when(kafkaEventPublisher).sendDeviceEvent(EventType.DEVICE_UPDATED, device);
 
         DeviceDTO result = deviceServiceTarget.updateDevice(1L, deviceCreationDTO);
 
@@ -230,7 +236,7 @@ class DeviceServiceImplTest {
     @Test
     void deleteDevice() {
         when(deviceRepositoryMock.findById(1L)).thenReturn(Optional.of(device));
-
+        doNothing().when(kafkaEventPublisher).sendDeviceEvent(EventType.DEVICE_DELETED, device);
         deviceServiceTarget.deleteDevice(1L);
 
         verify(deviceRepositoryMock, times(1)).findById(1L);

@@ -5,6 +5,7 @@ import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
 import com.internship.device_service.model.EventType;
+import com.internship.device_service.model.LogEventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
@@ -77,6 +78,7 @@ public class DeviceServiceImpl implements DeviceService {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         deviceRepository.delete(device);
+        kafkaEventPublisher.sendDeviceLogEvent(LogEventType.DEVICE_DELETED, deviceId, LocalDateTime.now());
         kafkaEventPublisher.sendDeviceEvent(EventType.DEVICE_DELETED, device);
     }
 

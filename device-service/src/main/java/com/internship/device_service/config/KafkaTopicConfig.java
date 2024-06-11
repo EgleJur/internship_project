@@ -12,4 +12,10 @@ public class KafkaTopicConfig {
         return TopicBuilder.name("deviceService")
                 .build();
     }
+
+    @Bean
+    public NewTopic deviceLogServiceTopic() {
+        return TopicBuilder.name("deviceLogService")
+                .build();
+    }
 }

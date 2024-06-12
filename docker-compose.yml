@@ -12,11 +12,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    #      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       - devicedb
       - service-registry
-      - kafka
+    #      - kafka
     networks:
       - app-network
 
@@ -44,6 +44,35 @@ services:
     depends_on:
       - userdb
       - service-registry
+    networks:
+      - app-network
+  producer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer-service
+    ports:
+      - "9595:9595"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - service-registry
+      - kafka
+    networks:
+      - app-network
+
+  consumer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer-service
+    ports:
+      - "9596:9596"
+    environment:
+      #      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      #      - service-registry
+      - kafka
     networks:
       - app-network
 

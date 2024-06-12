@@ -1,0 +1,19 @@
+# Use Amazon Corretto 17 as the base image
+FROM amazoncorretto:17
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the packaged JAR files and application properties for device-service
+COPY producer/target/producer-0.0.1-SNAPSHOT.jar /app/kafka-producer-service.jar
+COPY producer/src/main/resources/application*.properties /app/
+
+# Expose the port that your Spring Boot application will run on
+EXPOSE 9595
+
+# Command to run the JAR file
+#ENTRYPOINT ["java", "-jar", "kafka-producer-service.jar"]
+
+# Command to run the JAR file with a delay
+ENTRYPOINT ["sh", "-c", "sleep 30 && java -jar kafka-producer-service.jar"]
+

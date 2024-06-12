@@ -1,7 +1,5 @@
-package com.internship.device_service.config;
+package com.internship.producer.config;
 
-import com.internship.device_service.model.DeviceEvent;
-import com.internship.device_service.model.DeviceLogEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,23 +27,13 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, DeviceEvent> deviceEventProducerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfig());
     }
 
     @Bean
-    public KafkaTemplate<String, DeviceEvent> deviceEventKafkaTemplate() {
-        return new KafkaTemplate<>(deviceEventProducerFactory());
+    public KafkaTemplate<String, Object> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 
-
-    @Bean
-    public ProducerFactory<String, DeviceLogEvent> deviceLogEventProducerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfig());
-    }
-
-    @Bean
-    public KafkaTemplate<String, DeviceLogEvent> deviceLogEventKafkaTemplate() {
-        return new KafkaTemplate<>(deviceLogEventProducerFactory());
-    }
 }

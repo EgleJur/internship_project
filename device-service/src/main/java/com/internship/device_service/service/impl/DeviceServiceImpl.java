@@ -1,9 +1,14 @@
 package com.internship.device_service.service.impl;
 
 import com.internship.device_service.dao.DeviceRepository;
+import com.internship.device_service.feign.ProducerService;
 import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
+import com.internship.device_service.model.DeviceEvent;
+import com.internship.device_service.model.DeviceLogEvent;
+import com.internship.device_service.model.EventType;
+import com.internship.device_service.model.LogEventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
@@ -19,21 +24,29 @@ import java.util.stream.Collectors;
 public class DeviceServiceImpl implements DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
+
+    @Autowired
+    private ProducerService producerService;
     @Autowired
     DeviceMapper deviceMapper;
     @Autowired
     UserClient userClient;
 
-    public List<DeviceDTO> getAllDevices() {
-        List<Device> devices = deviceRepository.findAll();
-        return devices.stream().map(deviceMapper::deviceToDeviceDTO)
-                .collect(Collectors.toList());
-    }
+    private static final String DEVICE_TOPIC = "deviceService";
+    private static final String DEVICE_LOG_TOPIC = "deviceLogService";
+
 
     public DeviceDTO getDeviceById(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         return deviceMapper.deviceToDeviceDTO(device);
+    }
+
+
+    public List<DeviceDTO> getAllDevices() {
+        List<Device> devices = deviceRepository.findAll();
+        return devices.stream().map(deviceMapper::deviceToDeviceDTO)
+                .collect(Collectors.toList());
     }
 
     public DeviceDTO createDevice(DeviceCreationDTO deviceDetails) {
@@ -42,8 +55,11 @@ public class DeviceServiceImpl implements DeviceService {
             throw new RuntimeException("User not found");
         }
         deviceDetails.setCreatedAt(LocalDateTime.now());
-        return deviceMapper.deviceToDeviceDTO(
-                deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails)));
+
+        Device savedDevice = deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails));
+        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(savedDevice.getDeviceId(), LocalDateTime.now(), LogEventType.DEVICE_ADDED));
+        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_ADDED, savedDevice));
+        return deviceMapper.deviceToDeviceDTO(savedDevice);
     }
 
     public DeviceDTO updateDevice(Long deviceId, DeviceCreationDTO deviceDetails) {
@@ -61,19 +77,28 @@ public class DeviceServiceImpl implements DeviceService {
         device.setStatus(deviceDetails.getStatus());
         device.setUpdatedAt(LocalDateTime.now());
 
-        return deviceMapper.deviceToDeviceDTO(deviceRepository.save(device));
+        Device updatedDevice = deviceRepository.save(device);
+        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(deviceId, LocalDateTime.now(), LogEventType.DEVICE_UPDATED));
+        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_UPDATED, updatedDevice));
+        return deviceMapper.deviceToDeviceDTO(updatedDevice);
     }
 
     public void deleteDevice(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         deviceRepository.delete(device);
+        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(deviceId, LocalDateTime.now(), LogEventType.DEVICE_DELETED));
+        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_DELETED, device));
     }
 
-    @Override
     public List<DeviceDTO> getDevicesByUserId(Long userId) {
         List<Device> devices = deviceRepository.findByUserId(userId);
         return devices.stream().map(deviceMapper::deviceToDeviceDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteDeviceByUserId(Long userId) {
+        deviceRepository.deleteDeviceByUserId(userId);
     }
 }

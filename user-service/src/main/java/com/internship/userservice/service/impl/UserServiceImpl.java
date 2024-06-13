@@ -1,6 +1,7 @@
 package com.internship.userservice.service.impl;
 
 import com.internship.userservice.dao.UserRepository;
+import com.internship.userservice.feign.ProducerService;
 import com.internship.userservice.feign.UserInterface;
 import com.internship.userservice.mapper.UserMapper;
 import com.internship.userservice.model.Device;
@@ -28,6 +29,10 @@ public class UserServiceImpl implements UserService {
     private UserProfilesService userProfilesService;
     @Autowired
     UserInterface userInterface;
+    @Autowired
+    private ProducerService producerService;
+
+    private static final String USER_DELETION_TOPIC = "user-deletion";
 
     @Autowired
     UserMapper userMapper;
@@ -71,8 +76,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        userProfilesService.deleteUserProfileByUser(user);
+        try {
+            userProfilesService.deleteUserProfileByUser(user);
+        } catch (Exception e) {
+            log.info("User Profile was not found with user id: " + userId);
+        }
         userRepository.delete(user);
+        producerService.sendEvent(USER_DELETION_TOPIC, userId);
     }
 
     public List<Device> getUserDevices(Long userId) {

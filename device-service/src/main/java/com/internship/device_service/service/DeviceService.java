@@ -17,4 +17,6 @@ public interface DeviceService {
     void deleteDevice(Long deviceId);
 
     List<DeviceDTO> getDevicesByUserId(Long userId);
+
+    void deleteDeviceByUserId(Long userId);
 }

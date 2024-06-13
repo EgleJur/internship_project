@@ -1,6 +1,7 @@
 package com.internship.userservice.service.impl;
 
 import com.internship.userservice.dao.UserRepository;
+import com.internship.userservice.feign.ProducerService;
 import com.internship.userservice.feign.UserInterface;
 import com.internship.userservice.mapper.UserMapper;
 import com.internship.userservice.model.Device;
@@ -41,10 +42,11 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userServiceTarget;
-
+    @Mock
+    ProducerService kafkaEventPublisher;
     @Mock
     private UserProfilesServiceImpl userProfilesServiceTarget;
-
+    private static final String USER_DELETION_TOPIC = "user-deletion";
     private User user;
     private UserDTO userDTO;
     private UserCreationDTO userCreationDTO;
@@ -192,6 +194,7 @@ class UserServiceImplTest {
         verify(userRepositoryMock, times(1)).findById(1L);
         verify(userProfilesServiceTarget, times(1)).deleteUserProfileByUser(user);
         verify(userRepositoryMock, times(1)).delete(user);
+        verify(kafkaEventPublisher, times(1)).sendEvent(USER_DELETION_TOPIC, 1L);
     }
 
     @Test

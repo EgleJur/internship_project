@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+
   device-service:
     build:
       context: .
@@ -11,9 +12,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    #      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       - devicedb
       - service-registry
+    #      - kafka
     networks:
       - app-network
 
@@ -43,6 +46,35 @@ services:
       - service-registry
     networks:
       - app-network
+  producer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer-service
+    ports:
+      - "9595:9595"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - service-registry
+      - kafka
+    networks:
+      - app-network
+
+  consumer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer-service
+    ports:
+      - "9596:9596"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - service-registry
+      - kafka
+    networks:
+      - app-network
 
   userdb:
     image: mysql:8.0
@@ -62,6 +94,31 @@ services:
       - "8761:8761"
     environment:
       EUREKA_INSTANCE_HOSTNAME: service-registry
+    networks:
+      - app-network
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
     networks:
       - app-network
 

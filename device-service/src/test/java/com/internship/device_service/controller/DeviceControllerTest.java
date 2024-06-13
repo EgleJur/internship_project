@@ -159,13 +159,13 @@ class DeviceControllerTest {
     @Test
     void createDevice_UserNotFound() throws Exception {
         when(deviceServiceMock.createDevice(setUpDeviceCreationDTO()))
-                .thenThrow(new RuntimeException("User not found"));
+                .thenThrow(new RuntimeException("User not found with id: 2"));
         mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(setUpDeviceCreationDTO())))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("User not found"));
+                .andExpect(content().string("User not found with id: 2"));
     }
 
 
@@ -199,13 +199,13 @@ class DeviceControllerTest {
     @Test
     void updateDevice_UserNotFound() throws Exception {
         when(deviceServiceMock.updateDevice(1L, setUpDeviceCreationDTO()))
-                .thenThrow(new RuntimeException("User not found"));
+                .thenThrow(new RuntimeException("User not found with id: 2"));
         mockMvc.perform(MockMvcRequestBuilders
                         .put(URL + "/{deviceId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(setUpDeviceCreationDTO())))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("User not found"));
+                .andExpect(content().string("User not found with id: 2"));
     }
 
     @Test

@@ -6,7 +6,9 @@ import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
 import com.internship.device_service.model.DeviceEvent;
+import com.internship.device_service.model.DeviceLogEvent;
 import com.internship.device_service.model.EventType;
+import com.internship.device_service.model.LogEventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
@@ -46,6 +48,7 @@ class DeviceServiceImplTest {
     @InjectMocks
     private DeviceServiceImpl deviceServiceTarget;
     private static final String DEVICE_TOPIC = "deviceService";
+    private static final String DEVICE_LOG_TOPIC = "deviceLogService";
 
     private Device device;
     private DeviceDTO deviceDTO;
@@ -157,7 +160,6 @@ class DeviceServiceImplTest {
         when(deviceMapperMock.deviceCreationDTOToDevice(any(DeviceCreationDTO.class))).thenReturn(device);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
-        doNothing().when(kafkaEventPublisher).sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_ADDED, device));
         DeviceDTO result = deviceServiceTarget.createDevice(deviceCreationDTO);
 
         assertNotNull(result);
@@ -193,7 +195,6 @@ class DeviceServiceImplTest {
         when(userClient.getUserById(2L)).thenReturn(user);
         when(deviceRepositoryMock.save(any(Device.class))).thenReturn(device);
         when(deviceMapperMock.deviceToDeviceDTO(any(Device.class))).thenReturn(deviceDTO);
-//        doNothing().when(kafkaEventPublisher).sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_ADDED, device));
 
         DeviceDTO result = deviceServiceTarget.updateDevice(1L, deviceCreationDTO);
 

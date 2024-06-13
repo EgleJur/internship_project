@@ -29,17 +29,17 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Object> deviceEventConsumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> deviceEventFactory(
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> kafkaListenerContainerFactory(
             ConsumerFactory<String, Object> consumerFactory
     ) {
-        ConcurrentKafkaListenerContainerFactory<String, Object> deviceEventFactory =
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        deviceEventFactory.setConsumerFactory(deviceEventConsumerFactory());
-        return deviceEventFactory;
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
     }
 
 //    @Bean

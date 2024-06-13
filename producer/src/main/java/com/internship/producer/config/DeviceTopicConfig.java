@@ -13,4 +13,15 @@ public class DeviceTopicConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic deviceLogServiceTopic() {
+        return TopicBuilder.name("deviceLogService")
+                .build();
+    }
+
+    @Bean
+    public NewTopic userDeletionTopic() {
+        return TopicBuilder.name("user-deletion")
+                .build();
+    }
 }

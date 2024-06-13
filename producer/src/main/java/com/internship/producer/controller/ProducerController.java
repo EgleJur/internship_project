@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/producer")
 public class ProducerController {
@@ -15,7 +17,8 @@ public class ProducerController {
     private KafkaProducerService producerService;
 
     @PostMapping
-    public void sendEvent(@RequestParam String topic, @RequestBody Object event) {
+    public void sendDeviceEvent(@RequestParam String topic, @RequestBody Object event) {
         producerService.sendEvent(topic, event);
     }
+
 }

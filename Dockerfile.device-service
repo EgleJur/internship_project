@@ -12,8 +12,8 @@ COPY device-service/src/main/resources/application*.properties /app/
 EXPOSE 8090
 
 # Command to run the JAR file
-#ENTRYPOINT ["java", "-jar", "device-service.jar"]
+ENTRYPOINT ["java", "-jar", "device-service.jar"]
 
 # Command to run the JAR file with a delay
-ENTRYPOINT ["sh", "-c", "sleep 30 && java -jar device-service.jar"]
+# ENTRYPOINT ["sh", "-c", "sleep 30 && java -jar device-service.jar"]
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient("DEVICE-SERVICE")
+@FeignClient(name = "device-service", url = "http://16.170.247.221:8090")
 public interface UserInterface {
     @GetMapping("/api/devices/user/{userId}")
     List<Device> getDevicesByUserId(@PathVariable("userId") Long userId);

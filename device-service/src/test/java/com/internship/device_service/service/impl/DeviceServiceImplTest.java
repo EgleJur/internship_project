@@ -1,14 +1,9 @@
 package com.internship.device_service.service.impl;
 
 import com.internship.device_service.dao.DeviceRepository;
-import com.internship.device_service.feign.ProducerService;
 import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
-import com.internship.device_service.model.DeviceEvent;
-import com.internship.device_service.model.DeviceLogEvent;
-import com.internship.device_service.model.EventType;
-import com.internship.device_service.model.LogEventType;
 import com.internship.device_service.model.User;
 import com.internship.device_service.model.dto.DeviceCreationDTO;
 import com.internship.device_service.model.dto.DeviceDTO;
@@ -28,7 +23,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,8 +36,6 @@ class DeviceServiceImplTest {
     private DeviceMapper deviceMapperMock;
     @Mock
     UserClient userClient;
-    @Mock
-    ProducerService kafkaEventPublisher;
 
     @InjectMocks
     private DeviceServiceImpl deviceServiceTarget;

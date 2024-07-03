@@ -1,7 +1,6 @@
 package com.internship.device_service.service.impl;
 
 import com.internship.device_service.dao.DeviceRepository;
-import com.internship.device_service.feign.ProducerService;
 import com.internship.device_service.feign.UserClient;
 import com.internship.device_service.mapper.DeviceMapper;
 import com.internship.device_service.model.Device;
@@ -25,8 +24,6 @@ public class DeviceServiceImpl implements DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
 
-    @Autowired
-    private ProducerService producerService;
     @Autowired
     DeviceMapper deviceMapper;
     @Autowired
@@ -57,8 +54,6 @@ public class DeviceServiceImpl implements DeviceService {
         deviceDetails.setCreatedAt(LocalDateTime.now());
 
         Device savedDevice = deviceRepository.save(deviceMapper.deviceCreationDTOToDevice(deviceDetails));
-        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(savedDevice.getDeviceId(), LocalDateTime.now(), LogEventType.DEVICE_ADDED));
-        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_ADDED, savedDevice));
         return deviceMapper.deviceToDeviceDTO(savedDevice);
     }
 
@@ -78,8 +73,6 @@ public class DeviceServiceImpl implements DeviceService {
         device.setUpdatedAt(LocalDateTime.now());
 
         Device updatedDevice = deviceRepository.save(device);
-        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(deviceId, LocalDateTime.now(), LogEventType.DEVICE_UPDATED));
-        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_UPDATED, updatedDevice));
         return deviceMapper.deviceToDeviceDTO(updatedDevice);
     }
 
@@ -87,8 +80,7 @@ public class DeviceServiceImpl implements DeviceService {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Device not found"));
         deviceRepository.delete(device);
-        producerService.sendEvent(DEVICE_LOG_TOPIC, new DeviceLogEvent(deviceId, LocalDateTime.now(), LogEventType.DEVICE_DELETED));
-        producerService.sendEvent(DEVICE_TOPIC, new DeviceEvent(EventType.DEVICE_DELETED, device));
+
     }
 
     public List<DeviceDTO> getDevicesByUserId(Long userId) {
